@@ -1,0 +1,44 @@
+---
+title: "HDT6RegresionLogistica"
+author: "Ayleen Rubio 19003, Andrés Say 19705, Andreé Toledo 18439"
+date: "12/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#"C:/Users/andre/OneDrive/Documentos/HT1.Analisis-Exploratorio"
+#Ingebor Rubio/Desktop/Trabajos/Quinto Semestre/Mineria/HDT6RegresionLogistica
+#C:/Users/Andree/Documents/GitHub/HDT3-ArbolesDeDecision
+
+#"C:/Users/andre/OneDrive/Documentos/HDT4RegresionLineal"
+
+knitr::opts_knit$set(root.dir="C:/Users/Ingebor Rubio/Desktop/Trabajos/Quinto Semestre/Mineria/HDT6RegresionLogistica")
+```
+
+# Hoja de trabajo No. 6: Modelos de Regresión Logística
+
+```{r data, echo=FALSE}
+datosCasas <- read.csv("train.csv")
+library(caret)
+library(dummies)
+
+porciento <- 70/100
+
+set.seed(123)
+
+datosCasas$clasificacion <- ifelse(datosCasas$SalePrice <= 251000, "Economicas", ifelse(datosCasas$SalePrice <= 538000, "Intermedias", ifelse(datosCasas$SalePrice <= 755000, "Caras")))
+
+datos <- cbind(datosCasas, dummy(datosCasas$clasificacion,verbose = T))
+
+#datosCasas$y <- as.numeric(factor(datosCasas$clasificacion))
+datos <- datos[,c(2,4,18,19,20,21,27,35,37,38,39,44,45,46,47,48,49,50,51,52,53,55,57,60,62,63,67,68,69,70,71,72,76,77,78,81,83,84,85)]
+datos <- datos[,colSums(is.na(datos))==0]
+
+trainRowsNumber<-sample(nrow(datos),porciento*nrow(datos))
+train<-datos[trainRowsNumber,]
+test<-datos[-trainRowsNumber,]
+```
+
+
+

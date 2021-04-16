@@ -95,6 +95,7 @@ Evaluando esto, para evitar multicolinealidad y por ende overfitting, se elimina
 Por su parte, se eliminará la columna totalBsmtSF debido a que en el modelo presenta valores NA.
 
 ```{r Eliminando multicolinealidad, echo = FALSE}
+set.seed(123)
 borrar <- c("X1stFlrSF","TotRmsAbvGrd","GarageArea","TotalBsmtSF")
 datos2 <- datos[ , !(names(datos) %in% borrar)]
 datos2 <- datos2[,colSums(is.na(datos2))==0]
@@ -125,27 +126,33 @@ confusionMatrix(as.factor(test$datosCasasEconomicas),as.factor(prediccion))
 
 Puede observarse que en el modelo generado ya no se encuentran las variables con valores NA.
 
-El modelo para predecir las casas económicas se ha equivocado al predecir que 8 cosas sí eran económicas y al decir que 8 casas no lo eran, por esta reazón, tiene un porcentaje de acierto de 96.36%
+El modelo para predecir las casas económicas se ha equivocado al predecir que 4 cosas sí eran económicas y al decir que 4 casas no lo eran, por esta reazón, tiene un porcentaje de acierto de 98.18%
 
 ### Casas caras
 ```{r model2test, echo=FALSE}
 modelo <- glm(datosCasasCaras~., data = test[,c(1:28,30)],family = binomial(),maxit = 100)
+modelo
 pred <- predict(modelo,newdata = test[,1:28],type = "response")
 prediccion <-ifelse(pred>=0.5,1,0)
 confusionMatrix(as.factor(test$datosCasasCaras),as.factor(prediccion))
 ```
 
-En el modelo solo se ha predicho que una casa está considerada como cara y la ha predicho correctamente, sin embargo, cuenta con un porcentaje de acierto de 99.16%.
+Puede observarse que en el modelo generado ya no se encuentran las variables con valores NA.
+
+En el modelo solo se ha predicho que dos casas están consideradas como caras y las ha predicho correctamente, sin embargo, cuenta con un porcentaje de acierto de 99.16%.
 
 ### Casas intermedias
 ```{r model3test, echo=FALSE}
 modelo <- glm(datosCasasIntermedias~., data = train[,c(1:28,32)],family = binomial(),maxit = 100)
+modelo
 pred <- predict(modelo,newdata = test[,1:28],type = "response")
 prediccion <-ifelse(pred>=0.5,1,0)
 confusionMatrix(as.factor(test$datosCasasIntermedias),as.factor(prediccion))
 ```
 
-En cuanto a las casas intermedias, se ha equivocado al clasificar 17 casas como intermedias y 9 como no intermedias, por lo que tiene un porcentaje de acierto de 94.08%.
+Puede observarse que en el modelo generado ya no se encuentran las variables con valores NA.
 
-Se ha obtenido un mayor éxito en los aciertos de las casas caras, sin embargo, debido a la poca cantidad de estas que existen, creemos que eso puede influenciar en el resultado, por esto mismo hemos decidido que el modelo que ha hecho un mejor trabajo es el modelo para predecir qué casas son económicas con un porcentaje de acierto de 96.36%.
+En cuanto a las casas intermedias, se ha equivocado al clasificar 15 casas como intermedias y 12 como no intermedias, por lo que tiene un porcentaje de acierto de 93.85%.
+
+Se ha obtenido un mayor éxito en los aciertos de las casas caras, sin embargo, debido a la poca cantidad de estas que existen, creemos que eso puede influenciar en el resultado, por esto mismo hemos decidido que el modelo que ha hecho un mejor trabajo es el modelo para predecir qué casas son económicas con un porcentaje de acierto de 98.18%.
 

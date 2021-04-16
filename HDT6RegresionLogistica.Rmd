@@ -18,6 +18,8 @@ knitr::opts_knit$set(root.dir="C:/Users/Ingebor Rubio/Desktop/Trabajos/Quinto Se
 
 # Hoja de trabajo No. 6: Modelos de Regresión Logística
 
+En esta hoja de trabajo se busca poder realizar una clasificación entre casas caras, intermedias y económicas, por lo que es necesario convertir estas variables a dummy. Luego se escogen las columnas de datos con las que se trabajará, las cuales son las columnas con un tipo de valor numérico y se colocan como 0 los valores que tengan NA para evitar problemas.
+
 ```{r data, echo=FALSE}
 datosCasas <- read.csv("train.csv")
 library(caret)
@@ -40,26 +42,63 @@ train<-datos[trainRowsNumber,]
 test<-datos[-trainRowsNumber,]
 ```
 
+## Modelo de variables antes de analizar la correlación entre variables
+### Casas económicas
 ```{r model1, echo=FALSE}
-modelo <- glm(datosCasasEconomicas~., data = train[,c(1:33,35)],family = binomial(),maxit = 100)
+modelo <- glm(datosCasasEconomicas~., data = train[,c(1:32,35)],family = binomial(),maxit = 100)
+modelo
+#pred <- predict(modelo,newdata = test[,1:33],type = "response")
+#prediccion <-ifelse(pred>=0.5,1,0)
+#confusionMatrix(as.factor(test$datosCasasEconomicas),as.factor(prediccion))
+```
+
+### Casas caras
+```{r model2, echo=FALSE}
+modelo <- glm(datosCasasCaras~., data = train[,c(1:32,34)],family = binomial(),maxit = 100)
+modelo
+#pred <- predict(modelo,newdata = test[,1:33],type = "response")
+#prediccion <-ifelse(pred>=0.5,1,0)
+#confusionMatrix(as.factor(test$datosCasasCaras),as.factor(prediccion))
+```
+
+### Casas intermedias
+```{r model3, echo=FALSE}
+modelo <- glm(datosCasasIntermedias~., data = train[,c(1:32,36)],family = binomial(),maxit = 100)
+modelo
+#pred <- predict(modelo,newdata = test[,1:33],type = "response")
+#prediccion <-ifelse(pred>=0.5,1,0)
+#confusionMatrix(as.factor(test$datosCasasIntermedias),as.factor(prediccion))
+```
+
+## Correlación entre variables
+
+
+
+## Modelo con el conjunto de prueba para predecir y matriz de confusión
+### Casas economicas
+```{r model1test, echo=FALSE}
+modelo <- glm(datosCasasEconomicas~., data = test[,c(1:33,35)],family = binomial(),maxit = 100)
 pred <- predict(modelo,newdata = test[,1:33],type = "response")
 prediccion <-ifelse(pred>=0.5,1,0)
 confusionMatrix(as.factor(test$datosCasasEconomicas),as.factor(prediccion))
 ```
 
-```{r model2, echo=FALSE}
-modelo <- glm(datosCasasCaras~., data = train[,c(1:33,34)],family = binomial(),maxit = 100)
+### Casas caras
+```{r model2test, echo=FALSE}
+modelo <- glm(datosCasasCaras~., data = test[,c(1:33,34)],family = binomial(),maxit = 100)
 pred <- predict(modelo,newdata = test[,1:33],type = "response")
 prediccion <-ifelse(pred>=0.5,1,0)
 confusionMatrix(as.factor(test$datosCasasCaras),as.factor(prediccion))
 ```
 
-```{r model3, echo=FALSE}
+### Casas intermedias
+```{r model3test, echo=FALSE}
 modelo <- glm(datosCasasIntermedias~., data = train[,c(1:33,36)],family = binomial(),maxit = 100)
 pred <- predict(modelo,newdata = test[,1:33],type = "response")
 prediccion <-ifelse(pred>=0.5,1,0)
 confusionMatrix(as.factor(test$datosCasasIntermedias),as.factor(prediccion))
 ```
+
 
 
 

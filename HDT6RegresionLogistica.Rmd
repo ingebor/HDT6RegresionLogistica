@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 #C:/Users/Andree/Documents/GitHub/HDT3-ArbolesDeDecision
 
 #"C:/Users/andre/OneDrive/Documentos/HDT4RegresionLineal"
+#"C:/Users/andre/OneDrive/Documentos/3er año/1er semestre/Minería de datos/proyecto/HDT6RegresionLogistica"
+
 
 knitr::opts_knit$set(root.dir="C:/Users/Ingebor Rubio/Desktop/Trabajos/Quinto Semestre/Mineria/HDT6RegresionLogistica")
 ```
@@ -98,7 +100,32 @@ pred <- predict(modelo,newdata = test[,1:33],type = "response")
 prediccion <-ifelse(pred>=0.5,1,0)
 confusionMatrix(as.factor(test$datosCasasIntermedias),as.factor(prediccion))
 ```
+Debido a los altos valores de accuracy se decidió hacer un análisis de multicolinealidad con el objetivo de observar si hay algún componente "arrastrando" los valores causando sobreajuste 
+```{r Multicolinealidad, echo = FALSE}
+library(corrplot)
+correlacionMatriz <- cor(datos)
+corrplot(correlacionMatriz, method = 'square')
+cor(datos)
+```
+Se hizo un gráfico de correlación para evaluar la multicolinealidad, al igual que una matriz de correlación. Utilizando esta información se determinó que habían varias variables que se relacionaban entre sí y mantenerlas podía aumentar el riesgo de overfitting, en base a eso se utilizó la gráfica para evaluar cuales eran las variables correlacionadas y en base a la matriz se eliminó las variables que tenían menos relación con la variable respuesta.
+X1stFlrSF-totalBsmtSF 0.8195 es su nivel de correlación
+totRmsAbvGrd-GrLivArea 0.825 es su nivel de correlación
+GarageArea-GarageCars 0.8824 es su nivel de correlación
+evaluando su correlación con y
+X1stFlrSF 0.6
+totalBsmtSF 0.61
+totRmsAbvGrd 0.53
+GrLivArea  0.7
+GarageArea  0.62
+GarageCars 0.64
+ Evaluando esto, para evitar multicolinealidad y por ende overfitting, se eliminará X1stFlrSF, totRmsAbvGrd y GarageArea.
 
+```{r Eliminando multicolinealidad, echo = FALSE}
+borrar <- c("X1stFlrSF","TotRmsAbvGrd","GarageArea")
+datos2 <- datos[ , !(names(datos) %in% borrar)]
+datos2 <- datos2[,colSums(is.na(datos2))==0]
+View(datos2)
+```
 
 
 

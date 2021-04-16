@@ -124,8 +124,12 @@ GarageCars 0.64
 borrar <- c("X1stFlrSF","TotRmsAbvGrd","GarageArea")
 datos2 <- datos[ , !(names(datos) %in% borrar)]
 datos2 <- datos2[,colSums(is.na(datos2))==0]
-View(datos2)
 ```
-
-
-
+ Se hizo otro diagrama para buscar si hay otros datos altamente relacionados
+```{r Multicolinealidad Verificacion, echo = FALSE}
+library(corrplot)
+correlacionMatriz2 <- cor(datos2)
+corrplot(correlacionMatriz2, method = 'square')
+cor(datos2)
+```
+Como se puede ver, ninguno de los datos muestra ser factor de multicolinealidad 

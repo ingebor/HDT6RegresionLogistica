@@ -98,11 +98,20 @@ Por su parte, se eliminará la columna totalBsmtSF debido a que en el modelo pre
 borrar <- c("X1stFlrSF","TotRmsAbvGrd","GarageArea","TotalBsmtSF")
 datos2 <- datos[ , !(names(datos) %in% borrar)]
 datos2 <- datos2[,colSums(is.na(datos2))==0]
-<<<<<<< HEAD
 trainRowsNumber<-sample(nrow(datos2),porciento*nrow(datos2))
 train<-datos2[trainRowsNumber,]
 test<-datos2[-trainRowsNumber,]
 ```
+
+ Se hizo otro diagrama para buscar si hay otros datos altamente relacionados
+```{r Multicolinealidad Verificacion, echo = FALSE}
+library(corrplot)
+correlacionMatriz2 <- cor(datos2)
+corrplot(correlacionMatriz2, method = 'square')
+cor(datos2)
+```
+
+Como se puede ver, ninguno de los datos muestra ser factor de multicolinealidad 
 
 ## Modelo con el conjunto de prueba para predecir y matriz de confusión
 ### Casas economicas
@@ -140,11 +149,3 @@ En cuanto a las casas intermedias, se ha equivocado al clasificar 17 casas como 
 
 Se ha obtenido un mayor éxito en los aciertos de las casas caras, sin embargo, debido a la poca cantidad de estas que existen, creemos que eso puede influenciar en el resultado, por esto mismo hemos decidido que el modelo que ha hecho un mejor trabajo es el modelo para predecir qué casas son económicas con un porcentaje de acierto de 96.36%.
 
- Se hizo otro diagrama para buscar si hay otros datos altamente relacionados
-```{r Multicolinealidad Verificacion, echo = FALSE}
-library(corrplot)
-correlacionMatriz2 <- cor(datos2)
-corrplot(correlacionMatriz2, method = 'square')
-cor(datos2)
-```
-Como se puede ver, ninguno de los datos muestra ser factor de multicolinealidad 

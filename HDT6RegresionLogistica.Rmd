@@ -35,7 +35,6 @@ datosCasas$clasificacion <- ifelse(datosCasas$SalePrice <= 251000, "Economicas",
 
 datos <- cbind(datosCasas, dummy(datosCasas$clasificacion,verbose = T))
 
-#datosCasas$y <- as.numeric(factor(datosCasas$clasificacion))
 datos <- datos[,c(2,4,18,19,20,21,27,35,37,38,39,44,45,46,47,48,49,50,51,52,53,55,57,60,62,63,67,68,69,70,71,72,76,77,78,81,83,84,85)]
 datos <- datos[,colSums(is.na(datos))==0]
 
@@ -49,64 +48,37 @@ test<-datos[-trainRowsNumber,]
 ```{r model1, echo=FALSE}
 modelo <- glm(datosCasasEconomicas~., data = train[,c(1:32,35)],family = binomial(),maxit = 100)
 modelo
-#pred <- predict(modelo,newdata = test[,1:33],type = "response")
-#prediccion <-ifelse(pred>=0.5,1,0)
-#confusionMatrix(as.factor(test$datosCasasEconomicas),as.factor(prediccion))
 ```
+
+En el modelo generado para la predicción de qué casas serán económicas, se cuentra con un valor de intercepto de 1.55 aproximadamente. Otros datos que consideramos importantes es que tanto en TotalBsmtSF como en GrLivArea se cuenta con un valor de NA, por lo que es importante estudiar sus valores y correlaciones.
 
 ### Casas caras
 ```{r model2, echo=FALSE}
 modelo <- glm(datosCasasCaras~., data = train[,c(1:32,34)],family = binomial(),maxit = 100)
 modelo
-#pred <- predict(modelo,newdata = test[,1:33],type = "response")
-#prediccion <-ifelse(pred>=0.5,1,0)
-#confusionMatrix(as.factor(test$datosCasasCaras),as.factor(prediccion))
 ```
+
+En el modelo generado para la predicción de qué casas serán caras, se cuentra con un valor de intercepto de 8.07e+03 aproximadamente. Otros datos que consideramos importantes es que tanto en TotalBsmtSF como en GrLivArea se cuenta con un valor de NA, por lo que es importante estudiar sus valores y correlaciones de la misma manera.
 
 ### Casas intermedias
 ```{r model3, echo=FALSE}
 modelo <- glm(datosCasasIntermedias~., data = train[,c(1:32,36)],family = binomial(),maxit = 100)
 modelo
-#pred <- predict(modelo,newdata = test[,1:33],type = "response")
-#prediccion <-ifelse(pred>=0.5,1,0)
-#confusionMatrix(as.factor(test$datosCasasIntermedias),as.factor(prediccion))
 ```
+
+En el modelo generado para la predicción de qué casas serán de un valor intermedio, se cuentra con un valor de intercepto de 2.00e+01 aproximadamente. Otros datos que consideramos importantes es que tanto en TotalBsmtSF como en GrLivArea se cuenta con un valor de NA, por lo que es importante estudiar sus valores y correlaciones de la misma manera.
 
 ## Correlación entre variables
 
+Se decidió hacer un análisis de multicolinealidad entre las variables con el objetivo de observar si hay algún componente "arrastrando" los valores causando sobreajuste y para comprender si las variables que en los modelos anteriores mostraban un valor NA tienen alguna relación con esto y si pueden ser eliminados.
 
-
-## Modelo con el conjunto de prueba para predecir y matriz de confusión
-### Casas economicas
-```{r model1test, echo=FALSE}
-modelo <- glm(datosCasasEconomicas~., data = test[,c(1:33,35)],family = binomial(),maxit = 100)
-pred <- predict(modelo,newdata = test[,1:33],type = "response")
-prediccion <-ifelse(pred>=0.5,1,0)
-confusionMatrix(as.factor(test$datosCasasEconomicas),as.factor(prediccion))
-```
-
-### Casas caras
-```{r model2test, echo=FALSE}
-modelo <- glm(datosCasasCaras~., data = test[,c(1:33,34)],family = binomial(),maxit = 100)
-pred <- predict(modelo,newdata = test[,1:33],type = "response")
-prediccion <-ifelse(pred>=0.5,1,0)
-confusionMatrix(as.factor(test$datosCasasCaras),as.factor(prediccion))
-```
-
-### Casas intermedias
-```{r model3test, echo=FALSE}
-modelo <- glm(datosCasasIntermedias~., data = train[,c(1:33,36)],family = binomial(),maxit = 100)
-pred <- predict(modelo,newdata = test[,1:33],type = "response")
-prediccion <-ifelse(pred>=0.5,1,0)
-confusionMatrix(as.factor(test$datosCasasIntermedias),as.factor(prediccion))
-```
-Debido a los altos valores de accuracy se decidió hacer un análisis de multicolinealidad con el objetivo de observar si hay algún componente "arrastrando" los valores causando sobreajuste 
 ```{r Multicolinealidad, echo = FALSE}
 library(corrplot)
 correlacionMatriz <- cor(datos)
 corrplot(correlacionMatriz, method = 'square')
 cor(datos)
 ```
+
 Se hizo un gráfico de correlación para evaluar la multicolinealidad, al igual que una matriz de correlación. Utilizando esta información se determinó que habían varias variables que se relacionaban entre sí y mantenerlas podía aumentar el riesgo de overfitting, en base a eso se utilizó la gráfica para evaluar cuales eran las variables correlacionadas y en base a la matriz se eliminó las variables que tenían menos relación con la variable respuesta.
 X1stFlrSF-totalBsmtSF 0.8195 es su nivel de correlación
 totRmsAbvGrd-GrLivArea 0.825 es su nivel de correlación
@@ -118,14 +90,53 @@ totRmsAbvGrd 0.53
 GrLivArea  0.7
 GarageArea  0.62
 GarageCars 0.64
- Evaluando esto, para evitar multicolinealidad y por ende overfitting, se eliminará X1stFlrSF, totRmsAbvGrd y GarageArea.
+
+Evaluando esto, para evitar multicolinealidad y por ende overfitting, se eliminará X1stFlrSF, totRmsAbvGrd y GarageArea.
+Por su parte, se eliminará la columna totalBsmtSF debido a que en el modelo presenta valores NA.
 
 ```{r Eliminando multicolinealidad, echo = FALSE}
-borrar <- c("X1stFlrSF","TotRmsAbvGrd","GarageArea")
+borrar <- c("X1stFlrSF","TotRmsAbvGrd","GarageArea","TotalBsmtSF")
 datos2 <- datos[ , !(names(datos) %in% borrar)]
 datos2 <- datos2[,colSums(is.na(datos2))==0]
-View(datos2)
+trainRowsNumber<-sample(nrow(datos2),porciento*nrow(datos2))
+train<-datos2[trainRowsNumber,]
+test<-datos2[-trainRowsNumber,]
 ```
 
+## Modelo con el conjunto de prueba para predecir y matriz de confusión
+### Casas economicas
+```{r model1test, echo=FALSE}
+modelo <- glm(datosCasasEconomicas~., data = test[,c(1:28,31)],family = binomial(),maxit = 100)
+modelo
+pred <- predict(modelo,newdata = test[,1:28],type = "response")
+prediccion <-ifelse(pred>=0.5,1,0)
+confusionMatrix(as.factor(test$datosCasasEconomicas),as.factor(prediccion))
+```
+
+Puede observarse que en el modelo generado ya no se encuentran las variables con valores NA.
+
+El modelo para predecir las casas económicas se ha equivocado al predecir que 8 cosas sí eran económicas y al decir que 8 casas no lo eran, por esta reazón, tiene un porcentaje de acierto de 96.36%
+
+### Casas caras
+```{r model2test, echo=FALSE}
+modelo <- glm(datosCasasCaras~., data = test[,c(1:28,30)],family = binomial(),maxit = 100)
+pred <- predict(modelo,newdata = test[,1:28],type = "response")
+prediccion <-ifelse(pred>=0.5,1,0)
+confusionMatrix(as.factor(test$datosCasasCaras),as.factor(prediccion))
+```
+
+En el modelo solo se ha predicho que una casa está considerada como cara y la ha predicho correctamente, sin embargo, cuenta con un porcentaje de acierto de 99.16%.
+
+### Casas intermedias
+```{r model3test, echo=FALSE}
+modelo <- glm(datosCasasIntermedias~., data = train[,c(1:28,32)],family = binomial(),maxit = 100)
+pred <- predict(modelo,newdata = test[,1:28],type = "response")
+prediccion <-ifelse(pred>=0.5,1,0)
+confusionMatrix(as.factor(test$datosCasasIntermedias),as.factor(prediccion))
+```
+
+En cuanto a las casas intermedias, se ha equivocado al clasificar 17 casas como intermedias y 9 como no intermedias, por lo que tiene un porcentaje de acierto de 94.08%.
+
+Se ha obtenido un mayor éxito en los aciertos de las casas caras, sin embargo, debido a la poca cantidad de estas que existen, creemos que eso puede influenciar en el resultado, por esto mismo hemos decidido que el modelo que ha hecho un mejor trabajo es el modelo para predecir qué casas son económicas con un porcentaje de acierto de 96.36%.
 
 
